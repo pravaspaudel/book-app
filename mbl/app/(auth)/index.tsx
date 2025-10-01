@@ -4,64 +4,102 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
+
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React from "react";
-import { Button } from "@react-navigation/elements";
+import React, { useState } from "react";
 import { Link } from "expo-router";
 
 const SignUp = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleSignUp = () => {
-    console.log("sign up button clicked");
+    //need to handle this
+    console.log(`name is ${name}, email is ${email} and pass is ${password}`);
+    setEmail("");
+    setName("");
+    setPassword("");
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.textContent}>BookWorm </Text>
-        <Text style={{ textAlign: "center", fontSize: 20 }}>
-          Share your favorite read
-        </Text>
-      </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <View style={styles.textContainer}>
+            <Text style={styles.textContent}>Bookly</Text>
+            <Text style={{ textAlign: "center", fontSize: 20 }}>
+              Share your favorite read
+            </Text>
+          </View>
 
-      {/* field group */}
-      <View style={styles.fieldContainer}>
-        <View style={styles.fieldGroup}>
-          <Text>Full Name</Text>
-          <View style={styles.inputGroup}>
-            <Ionicons name="person-outline" size={24} color="#407BFF" />
-            <TextInput placeholder="Enter your name" />
+          {/* field group */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldGroup}>
+              <Text>Full Name</Text>
+              <View style={styles.inputGroup}>
+                <Ionicons name="person-outline" size={24} color="#407BFF" />
+                <TextInput
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.nativeEvent.text)}
+                />
+              </View>
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text>Email</Text>
+              <View style={styles.inputGroup}>
+                <Ionicons name="mail-outline" size={24} color="#407BFF" />
+                <TextInput
+                  placeholder="Enter your email"
+                  value={email}
+                  onChangeText={setEmail}
+                />
+              </View>
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text>Password</Text>
+              <View style={styles.inputGroup}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={24}
+                  color="#407BFF"
+                />
+                <TextInput
+                  placeholder="enter password"
+                  value={password}
+                  onChangeText={setPassword}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.signupPress} onPress={handleSignUp}>
+              <Text style={styles.signupText}>Sign up</Text>
+            </TouchableOpacity>
+
+            <View style={styles.alreadyContainer}>
+              <Text style={{ textAlign: "center" }}>Already signin</Text>
+              <Link href={"/(auth)/login"} style={{ color: "#407BFF" }}>
+                Login
+              </Link>
+            </View>
           </View>
         </View>
-
-        <View style={styles.fieldGroup}>
-          <Text>Email</Text>
-          <View style={styles.inputGroup}>
-            <Ionicons name="mail-outline" size={24} color="#407BFF" />
-            <TextInput placeholder="Enter your name" />
-          </View>
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text>Password</Text>
-          <View style={styles.inputGroup}>
-            <Ionicons name="lock-closed-outline" size={24} color="#407BFF" />
-            <TextInput placeholder="enter password" />
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.signupPress} onPress={handleSignUp}>
-          <Text style={styles.signupText}>Sign up</Text>
-        </TouchableOpacity>
-
-        <View style={styles.alreadyContainer}>
-          <Text style={{ textAlign: "center" }}>Already signin</Text>
-          <Link href={"/(auth)/login"} style={{ color: "#407BFF" }}>
-            Login
-          </Link>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -73,7 +111,7 @@ const styles = StyleSheet.create({
   },
 
   textContainer: {
-    marginTop: 150,
+    marginTop: 100,
   },
 
   textContent: {
@@ -101,14 +139,12 @@ const styles = StyleSheet.create({
   },
 
   fieldContainer: {
+    width: "90%",
+    margin: 15,
     paddingVertical: 30,
     padding: 9,
-    left: 0,
-    right: 0,
-    position: "absolute",
-    bottom: 100,
-    margin: 15,
-    elevation: 2,
+    borderWidth: 0.5,
+    borderRadius: 5,
   },
 
   signupPress: {
