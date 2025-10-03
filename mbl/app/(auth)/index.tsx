@@ -14,17 +14,31 @@ import React, { useState } from "react";
 import { Link } from "expo-router";
 
 const SignUp = () => {
-  const [name, setName] = useState("");
+  const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignUp = () => {
-    //need to handle this
-    console.log(`name is ${name}, email is ${email} and pass is ${password}`);
-    setEmail("");
-    setName("");
-    setPassword("");
+  const handleSignUp = async () => {
+    try {
+      const res = await fetch("http://192.168.18.101:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
+
+      console.log(`response is ${res}`);
+      const data = await res.json();
+      console.log(`response data is ${data}`);
+      console.log(`regsistered successfully ${data.message}`);
+    } catch (err: unknown) {
+      console.log("Error in fetching", err);
+    }
   };
 
   return (
@@ -51,9 +65,10 @@ const SignUp = () => {
               <View style={styles.inputGroup}>
                 <Ionicons name="person-outline" size={24} color="#407BFF" />
                 <TextInput
+                  style={{ width: "100%", height: "100%" }}
                   placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.nativeEvent.text)}
+                  value={username}
+                  onChange={(e) => setUserName(e.nativeEvent.text)}
                 />
               </View>
             </View>
@@ -63,6 +78,7 @@ const SignUp = () => {
               <View style={styles.inputGroup}>
                 <Ionicons name="mail-outline" size={24} color="#407BFF" />
                 <TextInput
+                  style={{ width: "100%", height: "100%" }}
                   placeholder="Enter your email"
                   value={email}
                   onChangeText={setEmail}
@@ -79,6 +95,7 @@ const SignUp = () => {
                   color="#407BFF"
                 />
                 <TextInput
+                  style={{ width: "100%", height: "100%" }}
                   placeholder="enter password"
                   value={password}
                   onChangeText={setPassword}
@@ -90,11 +107,16 @@ const SignUp = () => {
               <Text style={styles.signupText}>Sign up</Text>
             </TouchableOpacity>
 
-            <View style={styles.alreadyContainer}>
-              <Text style={{ textAlign: "center" }}>Already signin</Text>
-              <Link href={"/(auth)/login"} style={{ color: "#407BFF" }}>
-                Login
-              </Link>
+            <View style={styles.loginContainer}>
+              <Text style={{ textAlign: "center" }}>
+                Already signin?
+                <Link
+                  href={"/(auth)/login"}
+                  style={{ color: "#407BFF", marginLeft: 5 }}
+                >
+                  Login
+                </Link>
+              </Text>
             </View>
           </View>
         </View>
@@ -159,8 +181,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
   },
-
-  alreadyContainer: {},
+  loginContainer: {
+    marginVertical: 4,
+  },
 });
 
 export default SignUp;

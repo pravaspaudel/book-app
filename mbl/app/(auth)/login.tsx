@@ -7,13 +7,44 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
-import React from "react";
+import { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch("http://192.168.18.101:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data && data.token) {
+        await AsyncStorage.setItem("userToken", data.token);
+        console.log("token saved: ", data.token);
+      }
+
+      console.log(`regsistered successfully ${data.message}`);
+    } catch (err: unknown) {
+      console.log("Error in fetching", err);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -37,6 +68,8 @@ const Login = () => {
                 placeholder="Enter your email"
                 placeholderTextColor="#888"
                 style={styles.input}
+                value={email}
+                onChangeText={setEmail}
               />
             </View>
           </View>
@@ -50,9 +83,15 @@ const Login = () => {
                 placeholderTextColor="#888"
                 style={styles.input}
                 secureTextEntry
+                value={password}
+                onChangeText={setPassword}
               />
             </View>
           </View>
+
+          <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+            <Text style={{ textAlign: "center", color: "white" }}>Login</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -85,11 +124,6 @@ const styles = StyleSheet.create({
     width: "90%",
     padding: 20,
     backgroundColor: "#fff",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
     borderRadius: 10,
   },
 
@@ -120,6 +154,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: "#333",
+  },
+
+  loginBtn: {
+    borderRadius: 5,
+    backgroundColor: "#407BFF",
+    padding: 7,
   },
 });
 
