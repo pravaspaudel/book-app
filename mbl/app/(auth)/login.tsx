@@ -12,16 +12,25 @@ import {
 import { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const apiUrl = Constants.expoConfig?.extra?.apiUrl;
+
+  const router = useRouter();
 
   const handleLogin = async () => {
     try {
-      const res = await fetch("http://192.168.18.101:5000/api/auth/login", {
+      const res = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,16 +43,37 @@ const Login = () => {
 
       const data = await res.json();
 
-      if (data && data.token) {
-        await AsyncStorage.setItem("userToken", data.token);
-        console.log("token saved: ", data.token);
+      if (!res.ok || data.success === false) {
+        setError(data.message || "something went wrong");
+        setLoading(false);
+        return;
       }
 
-      console.log(`regsistered successfully ${data.message}`);
+      if (data.token) {
+        await AsyncStorage.setItem("token", data.token);
+        console.log(`regsistered successfully ${data.message}`);
+        alert("Login successful");
+        router.replace("/home");
+      }
     } catch (err: unknown) {
       console.log("Error in fetching", err);
     }
   };
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={{ fontSize: 20 }}>Loading.....</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -82,16 +112,29 @@ const Login = () => {
                 placeholder="Enter your password"
                 placeholderTextColor="#888"
                 style={styles.input}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={setPassword}
               />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={24}
+                  color="#407BFF"
+                ></Ionicons>
+              </TouchableOpacity>
             </View>
           </View>
 
           <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
             <Text style={{ textAlign: "center", color: "white" }}>Login</Text>
           </TouchableOpacity>
+
+          {error ? (
+            <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
+              {error}
+            </Text>
+          ) : null}
         </View>
       </View>
     </KeyboardAvoidingView>

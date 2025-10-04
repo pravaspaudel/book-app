@@ -9,18 +9,36 @@ import {
   ScrollView,
 } from "react-native";
 
+import Constants from "expo-constants";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useState } from "react";
-import { Link } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Link, Redirect, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRoute } from "@react-navigation/native";
+
+type dataType = {
+  success: boolean;
+  message: string;
+  token?: string;
+};
 
 const SignUp = () => {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+
+  const apiUrl = Constants.expoConfig?.extra?.apiUrl ?? "Not defined";
+  console.log("API URL:", apiUrl);
 
   const handleSignUp = async () => {
+    setLoading(true);
     try {
-      const res = await fetch("http://192.168.18.101:5000/api/auth/register", {
+      const res = await fetch(`${apiUrl}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,14 +50,44 @@ const SignUp = () => {
         }),
       });
 
-      console.log(`response is ${res}`);
-      const data = await res.json();
-      console.log(`response data is ${data}`);
-      console.log(`regsistered successfully ${data.message}`);
+      const data: dataType = await res.json();
+
+      if (!res.ok || data.success === false) {
+        setError(data.message || "something went wrong");
+        setLoading(false);
+        return;
+      }
+
+      if (data.token) {
+        await AsyncStorage.setItem("token", data.token);
+        console.log(`regsistered successfully ${data.message}`);
+        alert("Login successful");
+        router.replace("/home");
+      }
     } catch (err: unknown) {
-      console.log("Error in fetching", err);
+      console.log("Error in request", err);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={{ fontSize: 20 }}>Loading.....</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -68,7 +116,7 @@ const SignUp = () => {
                   style={{ width: "100%", height: "100%" }}
                   placeholder="Enter your name"
                   value={username}
-                  onChange={(e) => setUserName(e.nativeEvent.text)}
+                  onChangeText={setUserName}
                 />
               </View>
             </View>
@@ -95,11 +143,21 @@ const SignUp = () => {
                   color="#407BFF"
                 />
                 <TextInput
-                  style={{ width: "100%", height: "100%" }}
-                  placeholder="enter password"
+                  style={{ flex: 1, height: "100%" }}
+                  placeholder="Enter password"
                   value={password}
                   onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
                 />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#407BFF"
+                  />
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -118,6 +176,14 @@ const SignUp = () => {
                 </Link>
               </Text>
             </View>
+
+            {error ? (
+              <Text
+                style={{ color: "red", textAlign: "center", marginTop: 10 }}
+              >
+                {error}
+              </Text>
+            ) : null}
           </View>
         </View>
       </ScrollView>

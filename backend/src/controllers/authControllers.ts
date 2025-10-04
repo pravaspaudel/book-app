@@ -24,6 +24,8 @@ const signUp = async (
   next: NextFunction
 ) => {
   try {
+    console.log("signup hit");
+    console.log(userSchema.parse(req.body));
     const validate = userSchema.parse(req.body);
 
     const { username, email, password } = validate;
@@ -62,8 +64,7 @@ const signUp = async (
 
     res.status(201).json({
       success: true,
-      message: "user created successfull",
-      result: createdUser.toObject(), //convert to plain object from mogoose docs
+      message: "user created successfully",
       token: token,
     });
   } catch (err) {

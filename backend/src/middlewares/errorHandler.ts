@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { success, ZodError } from "zod";
+import { ZodError } from "zod";
 
 const errorHandler = (
   err: any,
@@ -11,7 +11,9 @@ const errorHandler = (
   let message = err.message || "something went wrong";
 
   if (err instanceof ZodError) {
-    message = `errorfromzod ${err.issues[0].message}`;
+    message = `${err.issues[0].message}`;
+  } else if (err instanceof Error) {
+    message = err.message;
   }
 
   res.status(errStatusCode).json({
