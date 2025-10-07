@@ -3,6 +3,7 @@ import { PORT, MONGO_URL } from "./config/envConfig";
 import connectDB from "./db/connectDb";
 import errorHandler from "./middlewares/errorHandler";
 import authRoute from "./routes/authRoute";
+import profileRoute from "./routes/profileRoute";
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoute);
+app.use("/api", profileRoute);
 
 app.use(errorHandler);
 

@@ -12,9 +12,8 @@ import {
 import Constants from "expo-constants";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect, useState } from "react";
-import { Link, Redirect, useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRoute } from "@react-navigation/native";
 
 type dataType = {
   success: boolean;
@@ -62,7 +61,7 @@ const SignUp = () => {
         await AsyncStorage.setItem("token", data.token);
         console.log(`regsistered successfully ${data.message}`);
         alert("Login successful");
-        router.replace("/home");
+        router.replace("/(tabs)");
       }
     } catch (err: unknown) {
       console.log("Error in request", err);

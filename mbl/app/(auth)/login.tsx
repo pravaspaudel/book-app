@@ -53,7 +53,7 @@ const Login = () => {
         await AsyncStorage.setItem("token", data.token);
         console.log(`regsistered successfully ${data.message}`);
         alert("Login successful");
-        router.replace("/home");
+        router.replace("/(tabs)/index");
       }
     } catch (err: unknown) {
       console.log("Error in fetching", err);
